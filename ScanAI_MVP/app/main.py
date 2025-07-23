@@ -3,12 +3,11 @@ import streamlit as st
 import requests
 import io
 from PIL import Image
+import random
 
-# API Keys (must be added to Streamlit secrets)
+# API Keys (only Deepware needed now)
 DEEPWARE_API_KEY = st.secrets["DEEPWARE_API_KEY"]
-ILLUMINARTY_API_KEY = st.secrets["ILLUMINARTY_API_KEY"]
 
-# Deepware video scanner
 def deepware_scan_video(file_obj):
     url = "https://api.deepware.ai/api/v1/video/scan"
     headers = {"X-Deepware-Authentication": DEEPWARE_API_KEY}
@@ -19,16 +18,12 @@ def deepware_scan_video(file_obj):
         return None
     return res.json()
 
-# Illuminarty image scanner
-def illuminarty_detect_image(file_bytes):
-    url = "https://api.illuminarty.ai/v1/image/classify"
-    headers = {"X-API-Key": ILLUMINARTY_API_KEY}
-    files = {"file": ("upload.jpg", file_bytes, "image/jpeg")}
-    res = requests.post(url, headers=headers, files=files)
-    if res.status_code != 200:
-        st.error(f"Image scan failed: {res.status_code} - {res.text}")
-        return None
-    return res.json()
+def fake_image_detection(file_bytes):
+    return {
+        "ai_generated": random.choice([True, False]),
+        "confidence": f"{round(random.uniform(87, 99), 2)}%",
+        "detected_by": "Simulated GAN Classifier"
+    }
 
 st.set_page_config(page_title="ScanAI – Universal AI Detector", layout="centered")
 st.title("🧠 ScanAI")
@@ -54,13 +49,10 @@ elif option == "Image":
     uploaded_image = st.file_uploader("Upload an image (JPG, PNG)", type=["jpg", "jpeg", "png"])
     if uploaded_image:
         file_bytes = uploaded_image.read()
-        st.image(Image.open(io.BytesIO(file_bytes)), caption="Uploaded Image", use_column_width=True)
-        scan_result = illuminarty_detect_image(file_bytes)
-        if scan_result:
-            st.subheader("Image Scan Result")
-            st.json(scan_result)
-        else:
-            st.error("Failed to analyze the image.")
+        st.image(Image.open(io.BytesIO(file_bytes)), caption="Uploaded Image", use_container_width=True)
+        scan_result = fake_image_detection(file_bytes)
+        st.subheader("Image Scan Result (Simulated)")
+        st.json(scan_result)
 
 elif option == "Audio":
     uploaded_audio = st.file_uploader("Upload audio (MP3, WAV, M4A)", type=["mp3", "wav", "m4a"])
