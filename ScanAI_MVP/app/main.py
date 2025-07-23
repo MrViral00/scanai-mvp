@@ -4,8 +4,9 @@ import requests
 import io
 from PIL import Image
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 
-# API Keys (only Deepware needed now)
 DEEPWARE_API_KEY = st.secrets["DEEPWARE_API_KEY"]
 
 def deepware_scan_video(file_obj):
@@ -21,9 +22,20 @@ def deepware_scan_video(file_obj):
 def fake_image_detection(file_bytes):
     return {
         "ai_generated": random.choice([True, False]),
-        "confidence": f"{round(random.uniform(87, 99), 2)}%",
+        "confidence": round(random.uniform(87, 99), 2),
         "detected_by": "Simulated GAN Classifier"
     }
+
+def display_color_bar(score):
+    fig, ax = plt.subplots(figsize=(6, 1.2))
+    gradient = np.linspace(0, 1, 256).reshape(1, -1)
+    ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap('RdYlGn'), extent=[0, 100, 0, 1])
+    ax.axvline(score, color='black', linewidth=2)
+    ax.set_yticks([])
+    ax.set_xticks([0, 25, 50, 75, 100])
+    ax.set_title(f"Originality Score: {score:.2f}%", fontsize=10)
+    ax.set_xlim(0, 100)
+    st.pyplot(fig)
 
 st.set_page_config(page_title="ScanAI – Universal AI Detector", layout="centered")
 st.title("🧠 ScanAI")
@@ -51,8 +63,9 @@ elif option == "Image":
         file_bytes = uploaded_image.read()
         st.image(Image.open(io.BytesIO(file_bytes)), caption="Uploaded Image", use_container_width=True)
         scan_result = fake_image_detection(file_bytes)
-        st.subheader("Image Scan Result (Simulated)")
-        st.json(scan_result)
+        originality = 100 - scan_result["confidence"] if scan_result["ai_generated"] else scan_result["confidence"]
+        st.subheader("🧪 Image Originality Score (Simulated)")
+        display_color_bar(originality)
 
 elif option == "Audio":
     uploaded_audio = st.file_uploader("Upload audio (MP3, WAV, M4A)", type=["mp3", "wav", "m4a"])
