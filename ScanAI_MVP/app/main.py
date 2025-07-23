@@ -12,7 +12,11 @@ def hive_detect_image(file_bytes):
     headers = {"Authorization": HIVE_API_KEY}
     files = {"media": ("upload.jpg", file_bytes, "image/jpeg")}
     res = requests.post(url, headers=headers, files=files)
-    return res.json()
+
+    st.write("Hive response status:", res.status_code)
+    st.write("Hive raw response text:", res.text)  # Add this line
+
+    return res.json()  # This line might still crash, but now you'll know why
 
 def deepware_scan_video(file_obj):
     url = "https://api.deepware.ai/api/v1/video/scan"
