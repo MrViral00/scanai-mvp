@@ -1,20 +1,28 @@
 
-# ScanAI – Detect AI-Generated Images & Deepfakes
+# ScanAI – Deepfake Detection with Deepware API
 
-🔍 Upload any image or video and detect whether it's AI-generated, manually Photoshopped, or a deepfake.
+This version of ScanAI uses the Deepware API to detect deepfakes in videos.
 
-## 🚀 Features
+## Setup
 
-- AI-generated image detection using Hive
-- Deepfake video scanning via Deepware
-- PDF report generation
-- Streamlit UI
+1. Add your Deepware API key in `.streamlit/secrets.toml`:
+```toml
+DEEPWARE_API_KEY = "your_deepware_key"
+```
 
-## 💻 Run Locally
-
+2. Install requirements:
 ```bash
 pip install -r requirements.txt
+```
+
+3. Run the app:
+```bash
 streamlit run app/main.py
 ```
 
-Add your API keys in `app/.streamlit/secrets.toml`.
+## Upload Limit
+- Max video size: 200MB (Streamlit Cloud default)
+
+## Output
+- Get report ID
+- Manual report link provided
